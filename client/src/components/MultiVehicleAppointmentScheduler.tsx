@@ -988,10 +988,11 @@ export default function MultiVehicleAppointmentScheduler({
                       id={`condition-major-stains-${currentVehicleIndex}`}
                       checked={currentVehicle.conditions.includes("Major Stains / Grease / Mold etc.")}
                       onCheckedChange={() => toggleVehicleCondition("Major Stains / Grease / Mold etc.")}
+                      className="border-blue-400/40"
                     />
                     <label
                       htmlFor={`condition-major-stains-${currentVehicleIndex}`}
-                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-100"
                     >
                       Major Stains / Grease / Mold etc.
                     </label>
@@ -1000,12 +1001,12 @@ export default function MultiVehicleAppointmentScheduler({
                   {/* Description field for Major Stains */}
                   {currentVehicle.conditions.includes("Major Stains / Grease / Mold etc.") && (
                     <div className="ml-6 mt-1">
-                      <Label className="text-xs text-gray-600">Please describe the specific issue in detail</Label>
+                      <Label className="text-xs text-blue-200/60">Please describe the specific issue in detail</Label>
                       <Input
                         placeholder="Describe stains/grease/mold issue"
                         value={otherCondition}
                         onChange={(e) => setOtherCondition(e.target.value)}
-                        className="mt-1 h-8 text-sm"
+                        className="mt-1 h-8 text-sm bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
                       />
                     </div>
                   )}
@@ -1016,10 +1017,11 @@ export default function MultiVehicleAppointmentScheduler({
                       id={`condition-urine-vomit-${currentVehicleIndex}`}
                       checked={currentVehicle.conditions.includes("Urine / Vomit / Blood etc.")}
                       onCheckedChange={() => toggleVehicleCondition("Urine / Vomit / Blood etc.")}
+                      className="border-blue-400/40"
                     />
                     <label
                       htmlFor={`condition-urine-vomit-${currentVehicleIndex}`}
-                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-100"
                     >
                       Urine / Vomit / Blood etc.
                     </label>
@@ -1028,12 +1030,12 @@ export default function MultiVehicleAppointmentScheduler({
                   {/* Description field for Urine/Vomit/Blood */}
                   {currentVehicle.conditions.includes("Urine / Vomit / Blood etc.") && (
                     <div className="ml-6 mt-1">
-                      <Label className="text-xs text-gray-600">Please describe the specific issue in detail</Label>
+                      <Label className="text-xs text-blue-200/60">Please describe the specific issue in detail</Label>
                       <Input
                         placeholder="Describe bodily fluid issue"
                         value={otherCondition}
                         onChange={(e) => setOtherCondition(e.target.value)}
-                        className="mt-1 h-8 text-sm"
+                        className="mt-1 h-8 text-sm bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
                       />
                     </div>
                   )}
@@ -1044,10 +1046,11 @@ export default function MultiVehicleAppointmentScheduler({
                       id={`condition-none-${currentVehicleIndex}`}
                       checked={currentVehicle.conditions.includes("None of the above")}
                       onCheckedChange={() => toggleVehicleCondition("None of the above")}
+                      className="border-blue-400/40"
                     />
                     <label
                       htmlFor={`condition-none-${currentVehicleIndex}`}
-                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-100"
                     >
                       None of the above
                     </label>
@@ -1059,10 +1062,11 @@ export default function MultiVehicleAppointmentScheduler({
                       id={`condition-other-${currentVehicleIndex}`}
                       checked={currentVehicle.conditions.includes("Other")}
                       onCheckedChange={() => toggleVehicleCondition("Other")}
+                      className="border-blue-400/40"
                     />
                     <label
                       htmlFor={`condition-other-${currentVehicleIndex}`}
-                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-100"
                     >
                       Other:
                     </label>
@@ -1075,7 +1079,7 @@ export default function MultiVehicleAppointmentScheduler({
                         placeholder="Please specify"
                         value={otherCondition}
                         onChange={(e) => setOtherCondition(e.target.value)}
-                        className="mt-1 h-8 text-sm"
+                        className="mt-1 h-8 text-sm bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
                       />
                     </div>
                   )}
@@ -1089,7 +1093,7 @@ export default function MultiVehicleAppointmentScheduler({
                 type="button"
                 variant="outline"
                 onClick={addVehicle}
-                className="w-full border-dashed flex items-center justify-center"
+                className="w-full border-dashed border-blue-400/40 text-blue-200 hover:bg-blue-500/20 hover:border-blue-400 flex items-center justify-center"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Another Vehicle
@@ -1101,6 +1105,7 @@ export default function MultiVehicleAppointmentScheduler({
                 type="button"
                 onClick={handleVehicleComplete}
                 disabled={!currentVehicle.make || !currentVehicle.model || !currentVehicle.year}
+                className="bg-blue-600 hover:bg-blue-700"
               >
                 Continue to Date Selection
               </Button>
