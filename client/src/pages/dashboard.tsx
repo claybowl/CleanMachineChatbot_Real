@@ -670,6 +670,38 @@ export default function Dashboard() {
         <TabsContent value="today" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-4">
+              {/* Appointment Statistics Card */}
+              <Card className="bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl">Monthly Overview</CardTitle>
+                  <CardDescription className="text-blue-100">
+                    {format(todayDate, 'MMMM yyyy')} Appointment Insights
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3" data-testid="stat-total-appointments">
+                      <div className="text-2xl font-bold">
+                        {Object.values(appointmentCounts).reduce((sum, count) => sum + count, 0)}
+                      </div>
+                      <div className="text-sm text-blue-100">Total Appointments</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3" data-testid="stat-busy-days">
+                      <div className="text-2xl font-bold">
+                        {Object.keys(appointmentCounts).length}
+                      </div>
+                      <div className="text-sm text-blue-100">Busy Days</div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3" data-testid="stat-peak-bookings">
+                      <div className="text-2xl font-bold">
+                        {Math.max(...Object.values(appointmentCounts), 0)}
+                      </div>
+                      <div className="text-sm text-blue-100">Peak Daily Bookings</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card className="bg-blue-50/95 text-gray-800 shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center text-blue-800">
@@ -904,6 +936,56 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
               
+              {/* Daily Insights Card */}
+              <Card className="mt-4 bg-gradient-to-br from-purple-50 to-blue-50 text-gray-800 shadow-lg border-purple-200">
+                <CardHeader>
+                  <CardTitle className="text-purple-800 flex items-center">
+                    <Star className="mr-2 h-5 w-5 text-purple-600" />
+                    {format(todayDate, 'MMM d')} Insights
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {filteredAppointments.length > 0 ? (
+                    <>
+                      <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                        <span className="text-sm text-gray-600">Appointments Today:</span>
+                        <Badge className="bg-purple-600">{filteredAppointments.length}</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                        <span className="text-sm text-gray-600">Popular Service:</span>
+                        <Badge variant="outline" className="border-purple-400 text-purple-700">
+                          {(() => {
+                            const serviceCounts = filteredAppointments.reduce((acc: any, apt) => {
+                              acc[apt.service] = (acc[apt.service] || 0) + 1;
+                              return acc;
+                            }, {});
+                            const mostPopular = Object.entries(serviceCounts).sort((a: any, b: any) => b[1] - a[1])[0];
+                            return mostPopular ? mostPopular[0] : 'N/A';
+                          })()}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-white rounded-lg">
+                        <span className="text-sm text-gray-600">Estimated Revenue:</span>
+                        <span className="text-lg font-bold text-green-600">
+                          ${(() => {
+                            const total = filteredAppointments.reduce((sum, apt) => {
+                              const price = apt.price ? parseInt(apt.price.replace(/\D/g, '')) || 150 : 150;
+                              return sum + price;
+                            }, 0);
+                            return total.toLocaleString();
+                          })()}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-4 text-gray-500">
+                      <p>No appointments for this date</p>
+                      <p className="text-sm mt-1">Select a different date to view insights</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
               <Card className="mt-4 bg-white/95 text-gray-800 shadow-lg">
                 <CardHeader>
                   <CardTitle className="text-blue-800">Quick Actions</CardTitle>
