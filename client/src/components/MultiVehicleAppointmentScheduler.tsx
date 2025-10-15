@@ -706,10 +706,12 @@ export default function MultiVehicleAppointmentScheduler({
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-500 text-white">
-        <CardTitle className="text-xl font-bold">Schedule an Appointment</CardTitle>
-      </CardHeader>
+    <div className="w-full max-w-md mx-auto bg-gray-800/30 backdrop-blur-lg border border-blue-400/20 rounded-xl shadow-xl shadow-blue-500/5">
+      <div className="p-6 pb-3 text-center border-b border-blue-400/10">
+        <h2 className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200">
+          Schedule an Appointment
+        </h2>
+      </div>
       
       {/* Weather Alert Dialog */}
       <WeatherAlertDialog
@@ -722,7 +724,7 @@ export default function MultiVehicleAppointmentScheduler({
         date={selectedDate ? format(selectedDate, 'MMMM d, yyyy') : ''}
       />
       
-      <CardContent className="mt-4 w-full px-4 max-h-[60vh] overflow-y-auto">
+      <div className="mt-4 w-full px-6 max-h-[60vh] overflow-y-auto">
         {step === "address" && (
           <ServiceAreaCheck 
             onNext={handleAddressNext}
@@ -740,26 +742,28 @@ export default function MultiVehicleAppointmentScheduler({
         
         {step === "service" && (
           <div className="space-y-4">
-            <Label>Select a Service</Label>
+            <Label className="text-blue-100">Select a Service</Label>
             {isLoadingServices ? (
-              <div className="py-8 text-center">Loading services...</div>
+              <div className="py-8 text-center text-blue-200/70">Loading services...</div>
             ) : services.length > 0 ? (
               <div className="grid gap-2 max-h-[300px] overflow-y-auto">
                 {services.map((service) => (
                   <div 
                     key={service.name}
-                    className={`relative rounded-md border p-3 hover:bg-accent transition-colors cursor-pointer ${
-                      selectedService === service.name ? "border-blue-500 bg-blue-50" : ""
+                    className={`relative rounded-md border p-3 transition-all cursor-pointer ${
+                      selectedService === service.name 
+                        ? "border-blue-400 bg-blue-500/20 shadow-lg shadow-blue-500/20" 
+                        : "border-blue-400/20 bg-gray-700/30 hover:bg-gray-700/50 hover:border-blue-400/40"
                     }`}
                     onClick={() => handleServiceSelect(service.name)}
                   >
                     <div className="flex flex-col">
                       <div className="flex items-center justify-between">
-                        <div className="font-medium">{service.name}</div>
-                        <div className="text-blue-600 whitespace-nowrap">{service.priceRange}</div>
+                        <div className="font-medium text-blue-100">{service.name}</div>
+                        <div className="text-blue-300 whitespace-nowrap font-semibold">{service.priceRange}</div>
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">{service.description}</p>
-                      <div className="flex items-center mt-2 text-xs text-gray-500">
+                      <p className="text-sm text-blue-200/60 mt-1">{service.description}</p>
+                      <div className="flex items-center mt-2 text-xs text-blue-200/50">
                         <span>Estimated Duration: {service.duration}</span>
                       </div>
                     </div>
@@ -768,11 +772,11 @@ export default function MultiVehicleAppointmentScheduler({
               </div>
             ) : (
               <div className="py-4 text-center">
-                <p>No services available</p>
+                <p className="text-blue-200/70">No services available</p>
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="mt-2"
+                  className="mt-2 border-blue-400/30 text-blue-200 hover:bg-blue-500/20"
                   onClick={onClose}
                 >
                   Close
@@ -786,14 +790,15 @@ export default function MultiVehicleAppointmentScheduler({
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <div>
-                <Label className="text-lg">Add-On Services</Label>
-                <p className="text-sm text-gray-500 mt-1">
+                <Label className="text-lg text-blue-100">Add-On Services</Label>
+                <p className="text-sm text-blue-200/60 mt-1">
                   Optional services to enhance your {selectedService}
                 </p>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm"
+                className="text-blue-200 hover:bg-blue-500/20"
                 onClick={() => setStep("service")}
               >
                 Back
@@ -801,16 +806,18 @@ export default function MultiVehicleAppointmentScheduler({
             </div>
             
             {isLoadingAddOns ? (
-              <div className="py-8 text-center">Loading add-on options...</div>
+              <div className="py-8 text-center text-blue-200/70">Loading add-on options...</div>
             ) : addOnServices.length > 0 ? (
               <div className="space-y-4 max-h-[300px] overflow-y-auto pb-4">
                 {addOnServices.map((addon) => (
                   <div
                     key={addon.name}
-                    className={`relative rounded-md border p-3 ${
+                    className={`relative rounded-md border p-3 transition-all ${
                       selectedAddOns.includes(addon.name) 
-                        ? "border-blue-500 bg-blue-50" 
-                        : addon.recommended ? "border-amber-200 bg-amber-50" : ""
+                        ? "border-blue-400 bg-blue-500/20 shadow-lg shadow-blue-500/20" 
+                        : addon.recommended 
+                          ? "border-amber-400/40 bg-amber-500/10" 
+                          : "border-blue-400/20 bg-gray-700/30"
                     }`}
                   >
                     <div className="flex justify-between items-start">
@@ -820,17 +827,18 @@ export default function MultiVehicleAppointmentScheduler({
                             id={`addon-${addon.name}`}
                             checked={selectedAddOns.includes(addon.name)}
                             onCheckedChange={() => toggleAddOn(addon.name)}
+                            className="border-blue-400/40"
                           />
                           <label
                             htmlFor={`addon-${addon.name}`}
-                            className="ml-2 font-medium cursor-pointer"
+                            className="ml-2 font-medium cursor-pointer text-blue-100"
                           >
-                            {addon.name} {addon.recommended && <Badge variant="outline" className="ml-2 text-xs bg-amber-100 text-amber-800 border-amber-300">Recommended</Badge>}
+                            {addon.name} {addon.recommended && <Badge variant="outline" className="ml-2 text-xs bg-amber-500/20 text-amber-200 border-amber-400/40">Recommended</Badge>}
                           </label>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1 ml-6">{addon.description}</p>
+                        <p className="text-sm text-blue-200/60 mt-1 ml-6">{addon.description}</p>
                       </div>
-                      <div className="text-blue-600 font-medium whitespace-nowrap ml-2">
+                      <div className="text-blue-300 font-semibold whitespace-nowrap ml-2">
                         {addon.priceRange}
                       </div>
                     </div>
@@ -838,7 +846,7 @@ export default function MultiVehicleAppointmentScheduler({
                 ))}
               </div>
             ) : (
-              <div className="py-4 text-center text-gray-500">
+              <div className="py-4 text-center text-blue-200/60">
                 No add-on services available for this service
               </div>
             )}
@@ -847,6 +855,7 @@ export default function MultiVehicleAppointmentScheduler({
               <Button
                 type="button"
                 onClick={handleAddOnsComplete}
+                className="bg-blue-600 hover:bg-blue-700"
               >
                 Continue to Vehicle Information
               </Button>
@@ -856,14 +865,15 @@ export default function MultiVehicleAppointmentScheduler({
         
         {step === "vehicle" && (
           <div className="space-y-4 max-h-[calc(100vh-240px)] overflow-y-auto pb-4">
-            <div className="flex justify-between items-center mb-2 sticky top-0 bg-white pt-2 pb-2 z-10">
+            <div className="flex justify-between items-center mb-2 sticky top-0 bg-gray-800/90 backdrop-blur-sm pt-2 pb-2 z-10">
               <div>
-                <Label className="text-lg">Vehicle Information</Label>
-                <p className="text-sm text-gray-500 mt-1">Please provide details about your vehicle</p>
+                <Label className="text-lg text-blue-100">Vehicle Information</Label>
+                <p className="text-sm text-blue-200/60 mt-1">Please provide details about your vehicle</p>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm"
+                className="text-blue-200 hover:bg-blue-500/20"
                 onClick={() => setStep("addons")}
               >
                 Back
@@ -872,7 +882,7 @@ export default function MultiVehicleAppointmentScheduler({
             
             {/* Vehicle Tabs for multi-vehicle selection */}
             {vehicles.length > 1 && (
-              <div className="flex flex-wrap gap-2 mb-4 pb-2 border-b border-gray-200">
+              <div className="flex flex-wrap gap-2 mb-4 pb-2 border-b border-blue-400/20">
                 {vehicles.map((vehicle, idx) => (
                   <div key={idx} className="relative group">
                     <Button
@@ -907,50 +917,54 @@ export default function MultiVehicleAppointmentScheduler({
             
             <div className="space-y-4">
               <div>
-                <Label htmlFor="vehicleMake">Make *</Label>
+                <Label htmlFor="vehicleMake" className="text-blue-100">Make *</Label>
                 <Input
                   id="vehicleMake"
                   value={currentVehicle.make}
                   onChange={(e) => updateCurrentVehicle('make', e.target.value)}
                   placeholder="e.g., Toyota, Honda"
                   required
+                  className="bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
                 />
               </div>
               
               <div>
-                <Label htmlFor="vehicleModel">Model *</Label>
+                <Label htmlFor="vehicleModel" className="text-blue-100">Model *</Label>
                 <Input
                   id="vehicleModel"
                   value={currentVehicle.model}
                   onChange={(e) => updateCurrentVehicle('model', e.target.value)}
                   placeholder="e.g., Camry, Accord"
                   required
+                  className="bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
                 />
               </div>
               
               <div>
-                <Label htmlFor="vehicleYear">Year *</Label>
+                <Label htmlFor="vehicleYear" className="text-blue-100">Year *</Label>
                 <Input
                   id="vehicleYear"
                   value={currentVehicle.year}
                   onChange={(e) => updateCurrentVehicle('year', e.target.value)}
                   placeholder="e.g., 2020"
                   required
+                  className="bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
                 />
               </div>
               
               <div>
-                <Label htmlFor="vehicleColor">Color</Label>
+                <Label htmlFor="vehicleColor" className="text-blue-100">Color</Label>
                 <Input
                   id="vehicleColor"
                   value={currentVehicle.color}
                   onChange={(e) => updateCurrentVehicle('color', e.target.value)}
                   placeholder="e.g., Red, Blue, Black"
+                  className="bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
                 />
               </div>
               
               <div className="mt-4">
-                <Label className="mb-2 block">Vehicle Condition (select all that apply)</Label>
+                <Label className="mb-2 block text-blue-100">Vehicle Condition (select all that apply)</Label>
                 <div className="grid gap-2 mt-2">
                   {/* Pet hair, sand */}
                   <div className="flex items-center">
@@ -958,10 +972,11 @@ export default function MultiVehicleAppointmentScheduler({
                       id={`condition-pet-hair-sand-${currentVehicleIndex}`}
                       checked={currentVehicle.conditions.includes("Pet hair, sand")}
                       onCheckedChange={() => toggleVehicleCondition("Pet hair, sand")}
+                      className="border-blue-400/40"
                     />
                     <label
                       htmlFor={`condition-pet-hair-sand-${currentVehicleIndex}`}
-                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      className="ml-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-blue-100"
                     >
                       Excessive pet hair, sand (additional cost for interior cleaning)
                     </label>
@@ -1097,14 +1112,15 @@ export default function MultiVehicleAppointmentScheduler({
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <div>
-                <Label className="text-lg">Select a Date</Label>
-                <p className="text-sm text-gray-500 mt-1">
+                <Label className="text-lg text-blue-100">Select a Date</Label>
+                <p className="text-sm text-blue-200/60 mt-1">
                   Choose your preferred appointment date
                 </p>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm"
+                className="text-blue-200 hover:bg-blue-500/20"
                 onClick={() => setStep("vehicle")}
               >
                 Back
@@ -1112,7 +1128,7 @@ export default function MultiVehicleAppointmentScheduler({
             </div>
             
             {isLoading ? (
-              <div className="py-8 text-center">Loading available dates...</div>
+              <div className="py-8 text-center text-blue-200/70">Loading available dates...</div>
             ) : (
               <div className="py-4 flex justify-center">
                 <Calendar
@@ -1128,7 +1144,7 @@ export default function MultiVehicleAppointmentScheduler({
                       )
                     );
                   }}
-                  className="rounded-md border p-2"
+                  className="rounded-md border border-blue-400/30 p-2 bg-gray-700/20"
                 />
               </div>
             )}
@@ -1139,14 +1155,15 @@ export default function MultiVehicleAppointmentScheduler({
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <div>
-                <Label className="text-lg">Select a Time</Label>
-                <p className="text-sm text-gray-500 mt-1">
+                <Label className="text-lg text-blue-100">Select a Time</Label>
+                <p className="text-sm text-blue-200/60 mt-1">
                   {selectedDate ? `For ${format(selectedDate, 'EEEE, MMMM d, yyyy')}` : ''}
                 </p>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm"
+                className="text-blue-200 hover:bg-blue-500/20"
                 onClick={() => setStep("date")}
               >
                 Back
@@ -1154,14 +1171,14 @@ export default function MultiVehicleAppointmentScheduler({
             </div>
             
             {isLoading ? (
-              <div className="py-8 text-center">Loading available times...</div>
+              <div className="py-8 text-center text-blue-200/70">Loading available times...</div>
             ) : getTimeSlotsForSelectedDate().length > 0 ? (
               <div className="grid gap-2 max-h-[300px] overflow-y-auto">
                 {getTimeSlotsForSelectedDate().map((slot) => (
                   <Button
                     key={slot}
                     variant="outline"
-                    className="justify-start h-auto py-3 px-4 text-left"
+                    className="justify-start h-auto py-3 px-4 text-left border-blue-400/30 text-blue-100 hover:bg-blue-500/20 hover:border-blue-400"
                     onClick={() => handleTimeSelect(slot)}
                   >
                     {formatTimeSlot(slot)}
@@ -1169,7 +1186,7 @@ export default function MultiVehicleAppointmentScheduler({
                 ))}
               </div>
             ) : (
-              <div className="py-4 text-center">
+              <div className="py-4 text-center text-blue-200/70">
                 No available times found for {selectedService}.
               </div>
             )}
@@ -1180,14 +1197,15 @@ export default function MultiVehicleAppointmentScheduler({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="flex justify-between items-center">
               <div>
-                <Label className="text-lg">Contact Information</Label>
-                <p className="text-sm text-gray-500 mt-1">
+                <Label className="text-lg text-blue-100">Contact Information</Label>
+                <p className="text-sm text-blue-200/60 mt-1">
                   Please provide your contact details
                 </p>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm"
+                className="text-blue-200 hover:bg-blue-500/20"
                 onClick={() => setStep("time")}
               >
                 Back
@@ -1195,18 +1213,19 @@ export default function MultiVehicleAppointmentScheduler({
             </div>
             
             <div>
-              <Label htmlFor="name">Full Name *</Label>
+              <Label htmlFor="name" className="text-blue-100">Full Name *</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
                 required
+                className="bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
               />
             </div>
             
             <div>
-              <Label htmlFor="phone">Phone Number *</Label>
+              <Label htmlFor="phone" className="text-blue-100">Phone Number *</Label>
               <Input
                 id="phone"
                 type="tel"
@@ -1214,8 +1233,9 @@ export default function MultiVehicleAppointmentScheduler({
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Your phone number"
                 required
+                className="bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
               />
-              <p className="text-xs text-gray-600 mt-2 p-2 bg-gray-50 rounded border-l-4 border-blue-400">
+              <p className="text-xs text-blue-200/70 mt-2 p-2 bg-blue-500/10 rounded border-l-4 border-blue-400/50">
                 <span className="font-medium">SMS Consent:</span> By using this service, you consent to receive appointment reminders and updates via SMS.
               </p>
               <div className="flex items-center space-x-2 mt-2">
@@ -1224,22 +1244,22 @@ export default function MultiVehicleAppointmentScheduler({
                   id="smsConsent"
                   checked={smsConsent}
                   onChange={(e) => setSmsConsent(e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-blue-400/40 text-blue-600 focus:ring-blue-500"
                 />
-                <label htmlFor="smsConsent" className="text-sm text-gray-700">
+                <label htmlFor="smsConsent" className="text-sm text-blue-100">
                   I consent to receive SMS reminders and updates
                 </label>
               </div>
             </div>
             
             <div>
-              <Label htmlFor="notes">Additional Notes</Label>
+              <Label htmlFor="notes" className="text-blue-100">Additional Notes</Label>
               <textarea
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Gate code, special instructions, issues or concerns?"
-                className="min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="min-h-[100px] w-full rounded-md border border-blue-400/30 bg-gray-700/30 px-3 py-2 text-sm text-blue-100 placeholder:text-blue-200/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
 
@@ -1266,7 +1286,7 @@ export default function MultiVehicleAppointmentScheduler({
             <div className="pt-6 pb-2">
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg shadow-blue-500/30"
                 disabled={isLoading}
               >
                 {isLoading ? "Booking..." : "Confirm Appointment"}
@@ -1274,7 +1294,7 @@ export default function MultiVehicleAppointmentScheduler({
             </div>
           </form>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
