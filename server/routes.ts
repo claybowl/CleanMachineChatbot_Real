@@ -276,10 +276,11 @@ export async function registerRoutes(app: Express) {
   app.get('/api/dashboard/messages', getRecentMessages);
   app.put('/api/services/update', updateService);
   
-  // Google reviews
+  // Google reviews - fetch real-time reviews from Google Business Profile
   app.get('/api/google-reviews', async (req, res) => {
     try {
-      const reviews = await getGoogleReviews();
+      const placeId = req.query.placeId as string | undefined;
+      const reviews = await getGoogleReviews(placeId);
       res.json({ success: true, reviews });
     } catch (error) {
       console.error('Error fetching Google reviews:', error);
@@ -287,6 +288,64 @@ export async function registerRoutes(app: Express) {
         success: false, 
         message: 'Failed to fetch Google reviews',
         error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+
+  // Helper endpoint to find Google Place ID by business name and location
+  app.get('/api/google-places/search', async (req, res) => {
+    try {
+      const { query, location } = req.query;
+      
+      if (!query) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Query parameter is required' 
+        });
+      }
+
+      const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+      
+      if (!GOOGLE_API_KEY) {
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Google API key not configured' 
+        });
+      }
+
+      // Use Text Search (New) API to find the place
+      const searchQuery = location ? `${query} in ${location}` : query;
+      const url = 'https://places.googleapis.com/v1/places:searchText';
+      
+      const response = await axios.post(url, {
+        textQuery: searchQuery
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Goog-Api-Key': GOOGLE_API_KEY,
+          'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount'
+        }
+      });
+
+      const places = (response.data.places || []).map((place: any) => ({
+        placeId: place.id,
+        name: place.displayName?.text || '',
+        address: place.formattedAddress || '',
+        rating: place.rating || 0,
+        totalReviews: place.userRatingCount || 0
+      }));
+
+      res.json({ 
+        success: true, 
+        places,
+        message: places.length > 0 ? `Found ${places.length} place(s)` : 'No places found'
+      });
+    } catch (error: any) {
+      console.error('Error searching for place:', error.message);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to search for place',
+        error: error.message
       });
     }
   });

@@ -100,49 +100,68 @@ export async function getGooglePlacePhotos() {
 }
 
 /**
- * Get Google Reviews for the business
- * For now, returns mock reviews until proper Google Place API integration is implemented
+ * Get Google Reviews for the business using Google Places API
+ * Fetches real-time reviews from your Google Business Profile
  */
-export async function getGoogleReviews() {
-  // This is a mock implementation
-  // In a real implementation, this would use the Google Places API
-  const mockReviews = [
-    {
-      author_name: "John D.",
-      rating: 5,
-      text: "Amazing service! My car looks brand new after the full detail service.",
-      time: new Date().getTime() - 2 * 24 * 60 * 60 * 1000
-    },
-    {
-      author_name: "Sarah M.",
-      rating: 5,
-      text: "The ceramic coating was worth every penny. Super professional staff and outstanding results!",
-      time: new Date().getTime() - 7 * 24 * 60 * 60 * 1000
-    },
-    {
-      author_name: "Mike T.",
-      rating: 4,
-      text: "Great job on my interior detail. Would recommend to anyone looking for quality work.",
-      time: new Date().getTime() - 14 * 24 * 60 * 60 * 1000
-    },
-    {
-      author_name: "Lisa R.",
-      rating: 5,
-      text: "These guys are the real deal! Incredible attention to detail on my Tesla.",
-      time: new Date().getTime() - 21 * 24 * 60 * 60 * 1000
-    },
-    {
-      author_name: "Robert J.",
-      rating: 5, 
-      text: "Unbelievable transformation on my 10-year-old truck. Looks showroom new!",
-      time: new Date().getTime() - 30 * 24 * 60 * 60 * 1000
+export async function getGoogleReviews(placeId?: string) {
+  try {
+    // Use environment variable or parameter for Place ID
+    const GOOGLE_PLACE_ID = placeId || process.env.GOOGLE_PLACE_ID;
+    
+    if (!GOOGLE_API_KEY) {
+      console.error('Google API key not configured');
+      throw new Error('Google API key is required to fetch reviews');
     }
-  ];
-  
-  console.log("Google Places API response status: 200");
-  console.log(`Found ${mockReviews.length} reviews`);
-  
-  return mockReviews;
+
+    if (!GOOGLE_PLACE_ID) {
+      console.warn('Google Place ID not provided - please configure GOOGLE_PLACE_ID environment variable');
+      // Return empty array if Place ID not configured
+      return [];
+    }
+
+    // Use Google Places API (New) to fetch place details including reviews
+    const url = `https://places.googleapis.com/v1/places/${GOOGLE_PLACE_ID}`;
+    
+    console.log('Fetching real-time reviews from Google Places API');
+    
+    const response = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': GOOGLE_API_KEY,
+        'X-Goog-FieldMask': 'reviews,rating,userRatingCount,displayName'
+      }
+    });
+
+    if (response.status !== 200) {
+      throw new Error(`Google Places API error: ${response.statusText}`);
+    }
+
+    const data = response.data;
+    console.log(`Google Places API response status: ${response.status}`);
+    console.log(`Business: ${data.displayName?.text || 'Unknown'}`);
+    console.log(`Rating: ${data.rating || 'N/A'} (${data.userRatingCount || 0} total reviews)`);
+
+    // Transform Google Places API reviews to match expected format
+    const reviews = (data.reviews || []).map((review: any) => ({
+      author_name: review.authorAttribution?.displayName || 'Anonymous',
+      author_url: review.authorAttribution?.uri || '',
+      profile_photo_url: review.authorAttribution?.photoUri || '',
+      rating: review.rating || 5,
+      text: review.text?.text || review.originalText?.text || '',
+      time: new Date(review.publishTime).getTime() / 1000, // Convert to Unix timestamp
+      relative_time_description: review.relativePublishTimeDescription || ''
+    }));
+
+    console.log(`Found ${reviews.length} reviews from Google Places API`);
+    
+    return reviews;
+  } catch (error: any) {
+    console.error('Error fetching Google reviews:', error.message);
+    
+    // If API call fails, return empty array instead of mock data
+    console.log('Returning empty reviews array due to API error');
+    return [];
+  }
 }
 export function getDriveClient() {
   return drive;
