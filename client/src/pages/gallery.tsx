@@ -29,26 +29,26 @@ const GalleryPage: React.FC = () => {
       try {
         setLoading(true);
         
-        // Fetch photos from Google Business Profile
+        // Try to fetch photos from Google Business Profile API
         const response = await fetch('/api/google-business-photos');
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch photos');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.photos && data.photos.length > 0) {
+            setPhotos(data.photos);
+            setLoading(false);
+            return;
+          }
         }
         
-        const data = await response.json();
-        
-        if (data.success && data.photos) {
-          setPhotos(data.photos);
-        } else {
-          throw new Error(data.message || 'No photos available');
-        }
+        // Fallback to local gallery photos
+        const { mockGalleryPhotos } = await import('@/data/galleryPhotos');
+        setPhotos(mockGalleryPhotos);
       } catch (err) {
         console.error('Error fetching photos:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load photos');
-        
-        // Add some sample photos for now while API is being set up
-        setPhotos([]);
+        // Load local photos as fallback
+        const { mockGalleryPhotos } = await import('@/data/galleryPhotos');
+        setPhotos(mockGalleryPhotos);
       } finally {
         setLoading(false);
       }

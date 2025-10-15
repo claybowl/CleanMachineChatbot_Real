@@ -26,22 +26,27 @@ const GoogleReviews: React.FC<GoogleReviewsProps> = ({ placeId }) => {
     const fetchReviews = async () => {
       try {
         setLoading(true);
+        
+        // Try to fetch from API first
         const response = await fetch(`/api/google-reviews?placeId=${placeId}`);
         
-        if (!response.ok) {
-          throw new Error('Failed to fetch reviews');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.reviews && data.reviews.length > 0) {
+            setReviews(data.reviews);
+            setLoading(false);
+            return;
+          }
         }
         
-        const data = await response.json();
-        
-        if (!data.success || !data.reviews) {
-          throw new Error('No reviews found');
-        }
-        
-        setReviews(data.reviews);
+        // Fallback to local reviews data
+        const { mockReviews } = await import('@/data/reviews');
+        setReviews(mockReviews);
       } catch (err) {
         console.error('Error fetching Google reviews:', err);
-        setError('Unable to load reviews at this time');
+        // Load local reviews as fallback
+        const { mockReviews } = await import('@/data/reviews');
+        setReviews(mockReviews);
       } finally {
         setLoading(false);
       }
