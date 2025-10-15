@@ -12,7 +12,7 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '873147414857-7ffaa2b8l
 const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID || '1jYUTEaN7Nup_ShvU3plj7RKaedppxuyx'; // ID of "Client Photos" folder
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || '1-xeX82TPoxxeyWXoCEXh-TdMkBHuJSXjoUSaiFjfv9g'; // Your knowledge base spreadsheet ID
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'cleanmachinetulsa@gmail.com';
-const GOOGLE_PLACE_ID = process.env.GOOGLE_PLACE_ID || 'ChIJVX4B3d2TtocRCjnc7bJevHw'; // Clean Machine Mobile Auto Detail Place ID
+const GOOGLE_PLACE_ID = process.env.GOOGLE_PLACE_ID || ''; // Clean Machine Mobile Auto Detail Place ID - to be configured
 
 // Log API key status for debugging
 console.log('Google API key available:', !!GOOGLE_API_KEY);
@@ -99,7 +99,7 @@ export async function getGoogleBusinessPhotos(placeId?: string) {
  */
 export async function getGooglePlacePhotos() {
   try {
-    await initializeGoogleApis();
+    await initializeGoogleAPIs();
     
     if (!drive) {
       console.warn('Google Drive not initialized, returning empty photos');
@@ -127,7 +127,7 @@ export async function getGooglePlacePhotos() {
 
     // Convert files to photo objects and sort by quality (file size as proxy for quality)
     const photos = files
-      .filter(file => file.id && file.name)
+      .filter((file: any) => file.id && file.name)
       .map((file: any) => ({
         id: file.id,
         name: file.name,
@@ -141,7 +141,7 @@ export async function getGooglePlacePhotos() {
         height: file.imageMediaMetadata?.height || 600
       }))
       // Sort by file size (higher quality first) then by modification date
-      .sort((a, b) => {
+      .sort((a: any, b: any) => {
         // First priority: larger files (better quality)
         if (b.size !== a.size) {
           return b.size - a.size;
@@ -503,7 +503,7 @@ export async function findOrCreateCustomerFolder(customerName: string, vehicleIn
           } else {
             console.error('Folder not accessible or does not exist');
           }
-        } catch (permError) {
+        } catch (permError: any) {
           console.error('Failed to set folder permissions:', permError.message);
           // Continue anyway, we can still use the folder
         }
