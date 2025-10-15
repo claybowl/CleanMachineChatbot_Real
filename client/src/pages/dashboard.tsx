@@ -208,7 +208,7 @@ export default function Dashboard() {
       .then(data => {
         if (data.success && data.services) {
           // Mark these as main services (not add-ons)
-          const mainServices = data.services.map(service => ({
+          const mainServices = data.services.map((service: any) => ({
             ...service,
             isAddon: false
           }));
@@ -219,7 +219,7 @@ export default function Dashboard() {
             .then(addonData => {
               if (addonData.success && addonData.addOns) {
                 // Mark these as add-on services
-                const addonServices = addonData.addOns.map(addon => ({
+                const addonServices = addonData.addOns.map((addon: any) => ({
                   name: addon.name,
                   priceRange: addon.price,
                   description: addon.description || 'Add-on service',

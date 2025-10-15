@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { google } from 'googleapis';
 
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID;
-const sheets = google.sheets('v4');
 
 /**
  * Update customer information in Google Sheets
@@ -24,8 +23,8 @@ export async function updateCustomer(req: Request, res: Response) {
     });
     const authClient = await auth.getClient();
     
-    // Set auth client
-    sheets.options({ auth: authClient });
+    // Create sheets instance with auth
+    const authenticatedSheets = google.sheets({ version: 'v4', auth: authClient as any });
     
     // Search for the customer in multiple sheets
     const sheetsToCheck = ['Customer Database', 'Customer Information', 'SMS Knowledge Base'];
@@ -35,7 +34,7 @@ export async function updateCustomer(req: Request, res: Response) {
     for (const sheetName of sheetsToCheck) {
       try {
         // Get all data from the sheet
-        const response = await sheets.spreadsheets.values.get({
+        const response = await authenticatedSheets.spreadsheets.values.get({
           spreadsheetId: GOOGLE_SHEET_ID,
           range: `${sheetName}!A:Z`
         });
@@ -74,7 +73,7 @@ export async function updateCustomer(req: Request, res: Response) {
       
       // Check if Customer Database exists, create if not
       try {
-        const spreadsheet = await sheets.spreadsheets.get({
+        const spreadsheet = await authenticatedSheets.spreadsheets.get({
           spreadsheetId: GOOGLE_SHEET_ID
         });
         
@@ -84,7 +83,7 @@ export async function updateCustomer(req: Request, res: Response) {
         
         if (!sheetExists) {
           // Create the sheet with headers
-          await sheets.spreadsheets.batchUpdate({
+          await authenticatedSheets.spreadsheets.batchUpdate({
             spreadsheetId: GOOGLE_SHEET_ID,
             requestBody: {
               requests: [{
@@ -105,7 +104,7 @@ export async function updateCustomer(req: Request, res: Response) {
             'Loyalty Points', 'Loyalty Tier', 'Last Invoice Date', 'SMS Consent'
           ];
           
-          await sheets.spreadsheets.values.update({
+          await authenticatedSheets.spreadsheets.values.update({
             spreadsheetId: GOOGLE_SHEET_ID,
             range: `${targetSheet}!A1:O1`,
             valueInputOption: 'RAW',
@@ -134,7 +133,7 @@ export async function updateCustomer(req: Request, res: Response) {
           customer.smsConsent ? 'Yes' : 'No'
         ];
         
-        await sheets.spreadsheets.values.append({
+        await authenticatedSheets.spreadsheets.values.append({
           spreadsheetId: GOOGLE_SHEET_ID,
           range: `${targetSheet}!A:O`,
           valueInputOption: 'RAW',
@@ -159,7 +158,7 @@ export async function updateCustomer(req: Request, res: Response) {
     // Update existing customer
     try {
       // Get the headers to map field names to column indices
-      const headerResponse = await sheets.spreadsheets.values.get({
+      const headerResponse = await authenticatedSheets.spreadsheets.values.get({
         spreadsheetId: GOOGLE_SHEET_ID,
         range: `${targetSheet}!1:1`
       });
@@ -212,7 +211,7 @@ export async function updateCustomer(req: Request, res: Response) {
       
       // Batch update all fields
       if (updates.length > 0) {
-        await sheets.spreadsheets.values.batchUpdate({
+        await authenticatedSheets.spreadsheets.values.batchUpdate({
           spreadsheetId: GOOGLE_SHEET_ID,
           requestBody: {
             valueInputOption: 'RAW',

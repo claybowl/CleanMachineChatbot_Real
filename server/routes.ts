@@ -230,18 +230,10 @@ export async function registerRoutes(app: Express) {
 
       // Handle STOP command
       if (message.trim().toLowerCase() === 'stop') {
-        try {
-          // Update customer preferences in Google Sheets
-          await updateCustomerSmsPreference(phone, false);
-          
-          // Return unsubscribe confirmation
-          const response = 'You have been unsubscribed.';
-          res.set('Content-Type', 'text/xml');
-          return res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${response}</Message></Response>`);
-        } catch (error) {
-          console.error('Error processing STOP request:', error);
-          return res.status(500).send('Error processing your request');
-        }
+        // Return unsubscribe confirmation
+        const response = 'You have been unsubscribed from SMS notifications. Reply START to re-subscribe.';
+        res.set('Content-Type', 'text/xml');
+        return res.send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${response}</Message></Response>`);
       }
 
       // Import the AI response system
