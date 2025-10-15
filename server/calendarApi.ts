@@ -125,6 +125,7 @@ export async function handleBook(req: any, res: any) {
       service,
       addOns = [],
       time,
+      vehicles = [], // Accept vehicles array from frontend
       vehicleMake = "",
       vehicleModel = "",
       vehicleYear = "",
@@ -155,18 +156,40 @@ export async function handleBook(req: any, res: any) {
       appointmentDescription += `\nAddress: ${address}`;
     }
 
-    // Add vehicle information to the description if available
-    const vehicleInfo = [vehicleYear, vehicleMake, vehicleModel, vehicleColor]
-      .filter(Boolean)
-      .join(" ");
+    // Handle vehicles array (new format) or individual vehicle fields (legacy format)
+    if (vehicles && vehicles.length > 0) {
+      // New format: multiple vehicles as array
+      vehicles.forEach((vehicle: any, index: number) => {
+        const vehicleNum = vehicles.length > 1 ? `Vehicle ${index + 1}: ` : 'Vehicle: ';
+        const vehicleInfo = [
+          vehicle.year || vehicle.vehicleYear,
+          vehicle.make || vehicle.vehicleMake,
+          vehicle.model || vehicle.vehicleModel,
+          vehicle.color || vehicle.vehicleColor
+        ].filter(Boolean).join(" ");
+        
+        if (vehicleInfo) {
+          appointmentDescription += `\n${vehicleNum}${vehicleInfo}`;
+        }
+        
+        if (vehicle.condition && vehicle.condition.length > 0) {
+          appointmentDescription += `\n  Condition: ${vehicle.condition.join(", ")}`;
+        }
+      });
+    } else if (vehicleMake || vehicleModel || vehicleYear || vehicleColor) {
+      // Legacy format: individual vehicle fields
+      const vehicleInfo = [vehicleYear, vehicleMake, vehicleModel, vehicleColor]
+        .filter(Boolean)
+        .join(" ");
 
-    if (vehicleInfo) {
-      appointmentDescription += `\nVehicle: ${vehicleInfo}`;
-    }
+      if (vehicleInfo) {
+        appointmentDescription += `\nVehicle: ${vehicleInfo}`;
+      }
 
-    // Add vehicle condition to the description if available
-    if (vehicleCondition && vehicleCondition.length > 0) {
-      appointmentDescription += `\nVehicle Condition: ${vehicleCondition.join(", ")}`;
+      // Add vehicle condition to the description if available
+      if (vehicleCondition && vehicleCondition.length > 0) {
+        appointmentDescription += `\nVehicle Condition: ${vehicleCondition.join(", ")}`;
+      }
     }
 
     // Add notes to the description if available
@@ -182,6 +205,18 @@ export async function handleBook(req: any, res: any) {
           servicePreferences: { additionalRequests: [] },
         };
 
+        // Prepare vehicle info for customer memory
+        let vehicleInfoForMemory = "";
+        if (vehicles && vehicles.length > 0) {
+          vehicleInfoForMemory = vehicles.map((v: any) => 
+            [v.year || v.vehicleYear, v.make || v.vehicleMake, v.model || v.vehicleModel, v.color || v.vehicleColor]
+              .filter(Boolean).join(" ")
+          ).join(", ");
+        } else if (vehicleMake || vehicleModel || vehicleYear || vehicleColor) {
+          vehicleInfoForMemory = [vehicleYear, vehicleMake, vehicleModel, vehicleColor]
+            .filter(Boolean).join(" ");
+        }
+
         // Update customer info with new service and add-ons
         customerMemory.updateCustomer(phone, {
           name: name,
@@ -189,7 +224,7 @@ export async function handleBook(req: any, res: any) {
           address: address,
           email: email,
           lastInteraction: new Date(),
-          vehicleInfo: vehicleInfo,
+          vehicleInfo: vehicleInfoForMemory,
           serviceHistory: [
             ...(customerInfo.serviceHistory || []),
             {
@@ -231,8 +266,7 @@ export async function handleBook(req: any, res: any) {
         address,
         service,
         addOns,
-        vehicleInfo,
-        vehicleCondition,
+        vehicles: vehicles.length > 0 ? vehicles : { vehicleMake, vehicleModel, vehicleYear, vehicleColor, vehicleCondition },
         notes,
         name,
         email,
