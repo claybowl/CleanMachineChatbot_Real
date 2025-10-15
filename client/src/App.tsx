@@ -4,7 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
-import EnhancedChatbotUI from "@/components/EnhancedChatbotUI";
+import ChatPage from "@/pages/chat";
 import FormatterTest from "@/pages/formatter-test";
 import DirectionsPage from "@/pages/directions";
 import ServiceHistoryPage from "@/pages/service-history";
@@ -26,7 +26,7 @@ function Router() {
   return (
     <Switch>
       {/* Add pages below - more specific routes must come before the general ones */}
-      <Route path="/chat" component={EnhancedChatbotUI} />
+      <Route path="/chat" component={ChatPage} />
       <Route path="/schedule" component={SchedulePage} />
       <Route path="/formatter-test" component={FormatterTest} />
       <Route path="/directions" component={DirectionsPage} />
