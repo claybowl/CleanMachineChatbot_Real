@@ -318,66 +318,6 @@ export async function registerRoutes(app: Express) {
       });
     }
   });
-
-  // Weather forecast API (for WeatherForecast component)
-  app.get('/api/weather-forecast', async (req, res) => {
-    try {
-      const { latitude, longitude, days } = req.query;
-      
-      if (!latitude || !longitude) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Latitude and longitude are required'
-        });
-      }
-      
-      const forecastDays = days ? parseInt(days as string) : 3;
-      const weatherData = await getWeatherForecast(
-        parseFloat(latitude as string), 
-        parseFloat(longitude as string),
-        forecastDays
-      );
-      
-      res.json({ success: true, forecast: weatherData });
-    } catch (error) {
-      console.error('Error fetching weather forecast:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to fetch weather forecast',
-        error: error instanceof Error ? error.message : String(error)
-      });
-    }
-  });
-
-  // Appointment weather check API
-  app.get('/api/appointment-weather', async (req, res) => {
-    try {
-      const { latitude, longitude, date } = req.query;
-      
-      if (!latitude || !longitude || !date) {
-        return res.status(400).json({ 
-          success: false, 
-          message: 'Latitude, longitude, and date are required'
-        });
-      }
-      
-      const { checkAppointmentWeather } = await import('./weatherService');
-      const weatherCheck = await checkAppointmentWeather(
-        parseFloat(latitude as string), 
-        parseFloat(longitude as string),
-        date as string
-      );
-      
-      res.json({ success: true, ...weatherCheck });
-    } catch (error) {
-      console.error('Error checking appointment weather:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to check appointment weather',
-        error: error instanceof Error ? error.message : String(error)
-      });
-    }
-  });
   
   // Invoice loyalty points API
   // Google Maps API - Geocode an address

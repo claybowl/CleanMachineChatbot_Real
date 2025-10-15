@@ -44,18 +44,14 @@ export async function getHourlyForecast(
   days: number = 3
 ): Promise<WeatherForecast[]> {
   try {
-    // Use Open-Meteo free weather API with exact parameters
+    // Use Open-Meteo free weather API
     const response = await axios.get('https://api.open-meteo.com/v1/forecast', {
       params: {
         latitude: latitude,
         longitude: longitude,
         hourly: 'temperature_2m,precipitation_probability,weathercode',
-        current: 'temperature_2m,precipitation',
-        timezone: 'America/Chicago',
-        timeformat: 'unixtime',
-        wind_speed_unit: 'mph',
         temperature_unit: 'fahrenheit',
-        precipitation_unit: 'inch',
+        timezone: 'America/Chicago', // Tulsa timezone
         forecast_days: Math.min(days, 7) // Open-Meteo supports up to 7 days
       }
     });
