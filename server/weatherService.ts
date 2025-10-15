@@ -49,7 +49,7 @@ export async function getHourlyForecast(
       params: {
         latitude: latitude,
         longitude: longitude,
-        hourly: 'temperature_2m,precipitation_probability,weathercode',
+        hourly: 'temperature_2m,precipitation_probability',
         current: 'temperature_2m,precipitation',
         timezone: 'America/Chicago',
         timeformat: 'unixtime',
@@ -72,43 +72,43 @@ export async function getHourlyForecast(
     const times = hourlyData.time;
     const temperatures = hourlyData.temperature_2m;
     const precipProbabilities = hourlyData.precipitation_probability || [];
-    const weatherCodes = hourlyData.weathercode || [];
     
     for (let i = 0; i < times.length; i++) {
-      const date = new Date(times[i]);
+      const date = new Date(times[i] * 1000); // Convert unix timestamp to milliseconds
       const hour = date.getHours();
       
       // Only include business hours (9am to 5pm) when detailing work would be performed
       if (hour >= 9 && hour <= 17) {
-        const weatherCode = weatherCodes[i] || 0;
         const precipProb = precipProbabilities[i] || 0;
         
-        // Weather codes: 0=clear, 1-3=cloudy, 51-67=rain, 71-77=snow, 80-99=showers/thunderstorms
-        const isRainy = weatherCode >= 51 && weatherCode <= 99;
+        // Determine if it's rainy based on precipitation probability
+        const isRainy = precipProb >= 30;
         
-        // Get weather description based on WMO weather codes
+        // Get weather description based on precipitation probability
         let description = 'Clear';
-        if (weatherCode === 0) description = 'Clear sky';
-        else if (weatherCode <= 3) description = 'Partly cloudy';
-        else if (weatherCode <= 49) description = 'Foggy';
-        else if (weatherCode <= 67) description = 'Rain';
-        else if (weatherCode <= 77) description = 'Snow';
-        else if (weatherCode <= 82) description = 'Rain showers';
-        else if (weatherCode <= 99) description = 'Thunderstorm';
+        if (precipProb >= 70) {
+          description = 'Heavy rain likely';
+        } else if (precipProb >= 50) {
+          description = 'Rain likely';
+        } else if (precipProb >= 30) {
+          description = 'Possible rain';
+        } else if (precipProb >= 15) {
+          description = 'Slight chance of rain';
+        } else if (precipProb > 0) {
+          description = 'Mostly clear';
+        }
         
         // Determine severity based on precipitation probability
         let severity: 'none' | 'low' | 'moderate' | 'high' | 'severe' = 'none';
         
-        if (isRainy || precipProb > 0) {
-          if (precipProb > 70) {
-            severity = 'severe';
-          } else if (precipProb > 50) {
-            severity = 'high';
-          } else if (precipProb > 30) {
-            severity = 'moderate';
-          } else if (precipProb > 15) {
-            severity = 'low';
-          }
+        if (precipProb > 70) {
+          severity = 'severe';
+        } else if (precipProb > 50) {
+          severity = 'high';
+        } else if (precipProb > 30) {
+          severity = 'moderate';
+        } else if (precipProb > 15) {
+          severity = 'low';
         }
         
         forecasts.push({
