@@ -720,32 +720,42 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Large Central Calendar */}
             <div className="lg:col-span-2 space-y-4">
-              <Card className="bg-white/95 shadow-2xl border-blue-200">
-                <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+              <Card className="rounded-xl border-none bg-gradient-to-br from-blue-50 via-white to-purple-50 shadow-2xl overflow-hidden" data-testid="calendar-card">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white pb-6">
                   <CardTitle className="flex items-center justify-between text-2xl">
-                    <div className="flex items-center">
-                      <CalendarClock className="mr-3 h-8 w-8" />
-                      {format(todayDate, 'MMMM yyyy')} Calendar
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                        <CalendarClock className="h-7 w-7" />
+                      </div>
+                      <div>
+                        <div className="text-2xl font-bold">{format(todayDate, 'MMMM yyyy')}</div>
+                        <div className="text-sm text-blue-100 font-normal">
+                          {appointmentCounts && Object.values(appointmentCounts).reduce((a, b) => a + b, 0)} appointments this month
+                        </div>
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <Button
                         size="sm"
                         variant="secondary"
-                        className="bg-white/20 hover:bg-white/30 text-white border-white/20"
+                        className="bg-white/20 hover:bg-white/30 text-white border-white/20 backdrop-blur-sm transition-all"
                         onClick={() => setTodayDate(new Date())}
+                        data-testid="button-today"
                       >
+                        <Clock className="h-4 w-4 mr-2" />
                         Today
                       </Button>
                       <Button
                         size="sm"
                         variant="secondary"
-                        className="bg-white/20 hover:bg-white/30 text-white border-white/20"
+                        className="bg-white/20 hover:bg-white/30 text-white border-white/20 backdrop-blur-sm transition-all"
                         onClick={async () => {
                           toast({
                             title: "Checking Weather",
                             description: "Analyzing weather conditions for upcoming appointments...",
                           });
                         }}
+                        data-testid="button-weather"
                       >
                         <CloudRain className="h-4 w-4" />
                       </Button>
@@ -755,101 +765,233 @@ export default function Dashboard() {
                 <CardContent className="p-8">
                   <style>
                     {`
-                      .rdp-day {
-                        width: 60px !important;
-                        height: 60px !important;
-                        font-size: 16px !important;
+                      .modern-calendar .rdp {
+                        --rdp-cell-size: 70px;
+                        --rdp-accent-color: #3b82f6;
+                      }
+                      
+                      .modern-calendar .rdp-months {
+                        width: 100%;
+                      }
+                      
+                      .modern-calendar .rdp-month {
+                        width: 100%;
+                      }
+                      
+                      .modern-calendar .rdp-table {
+                        width: 100%;
+                        max-width: 100%;
+                      }
+                      
+                      .modern-calendar .rdp-head_cell {
+                        color: #6b7280;
+                        font-weight: 600;
+                        font-size: 0.875rem;
+                        padding: 8px 0;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                      }
+                      
+                      .modern-calendar .rdp-cell {
+                        padding: 2px;
+                      }
+                      
+                      .modern-calendar .rdp-day {
+                        width: 70px;
+                        height: 70px;
+                        font-size: 16px;
+                        font-weight: 500;
+                        border-radius: 12px;
                         position: relative;
+                        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                        cursor: pointer;
                       }
-                      .rdp-button {
-                        width: 100% !important;
-                        height: 100% !important;
+                      
+                      .modern-calendar .rdp-day:hover:not(.rdp-day_selected):not(.rdp-day_disabled) {
+                        background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
                       }
-                      .appointment-indicator {
+                      
+                      .modern-calendar .rdp-day_selected {
+                        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+                        color: white !important;
+                        box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+                        transform: scale(1.05);
+                      }
+                      
+                      .modern-calendar .rdp-day_today:not(.rdp-day_selected) {
+                        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+                        color: #1e40af;
+                        font-weight: 700;
+                        border: 2px solid #3b82f6;
+                      }
+                      
+                      .modern-calendar .rdp-day_disabled {
+                        opacity: 0.3;
+                        cursor: not-allowed;
+                      }
+                      
+                      .modern-calendar .rdp-button {
+                        width: 100%;
+                        height: 100%;
+                      }
+                      
+                      .modern-calendar .rdp-nav_button {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 10px;
+                        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+                        transition: all 0.2s;
+                      }
+                      
+                      .modern-calendar .rdp-nav_button:hover {
+                        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+                        color: white;
+                        transform: scale(1.1);
+                      }
+                      
+                      .modern-calendar .rdp-caption {
+                        margin-bottom: 16px;
+                      }
+                      
+                      .appointment-badge {
                         position: absolute;
-                        bottom: 4px;
+                        top: 6px;
+                        right: 6px;
+                        min-width: 22px;
+                        height: 22px;
+                        padding: 0 6px;
+                        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                        color: white;
+                        font-size: 11px;
+                        font-weight: 700;
+                        border-radius: 11px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+                        animation: pulse-badge 2s infinite;
+                      }
+                      
+                      @keyframes pulse-badge {
+                        0%, 100% { transform: scale(1); }
+                        50% { transform: scale(1.1); }
+                      }
+                      
+                      .appointment-dots {
+                        position: absolute;
+                        bottom: 6px;
                         left: 50%;
                         transform: translateX(-50%);
                         display: flex;
-                        gap: 2px;
+                        gap: 3px;
+                        align-items: center;
                       }
+                      
                       .appointment-dot {
-                        width: 6px;
-                        height: 6px;
+                        width: 8px;
+                        height: 8px;
                         border-radius: 50%;
-                        background: #3b82f6;
+                        animation: dot-bounce 1.4s infinite ease-in-out;
+                      }
+                      
+                      .appointment-dot:nth-child(1) {
+                        background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+                        animation-delay: -0.32s;
+                      }
+                      
+                      .appointment-dot:nth-child(2) {
+                        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                        animation-delay: -0.16s;
+                      }
+                      
+                      .appointment-dot:nth-child(3) {
+                        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                      }
+                      
+                      @keyframes dot-bounce {
+                        0%, 80%, 100% { transform: scale(0.8); opacity: 0.7; }
+                        40% { transform: scale(1.2); opacity: 1; }
+                      }
+                      
+                      .day-content {
+                        position: relative;
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
                       }
                     `}
                   </style>
-                  <Calendar
-                    mode="single"
-                    selected={todayDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        setTodayDate(date);
-                        const formattedDate = date.toISOString();
-                        fetch(`/api/dashboard/today?date=${formattedDate}`)
-                          .then(response => response.json())
-                          .then(data => {
-                            if (data.success && data.appointments) {
-                              setAppointments(data.appointments);
-                            } else {
+                  <div className="modern-calendar">
+                    <Calendar
+                      mode="single"
+                      selected={todayDate}
+                      onSelect={(date) => {
+                        if (date) {
+                          setTodayDate(date);
+                          const formattedDate = date.toISOString();
+                          fetch(`/api/dashboard/today?date=${formattedDate}`)
+                            .then(response => response.json())
+                            .then(data => {
+                              if (data.success && data.appointments) {
+                                setAppointments(data.appointments);
+                              } else {
+                                setAppointments([]);
+                              }
+                            })
+                            .catch(error => {
+                              console.error('Error fetching appointments:', error);
                               setAppointments([]);
-                            }
-                          })
-                          .catch(error => {
-                            console.error('Error fetching appointments:', error);
-                            setAppointments([]);
-                          });
-                      }
-                    }}
-                    className="w-full"
-                    classNames={{
-                      months: "w-full",
-                      month: "w-full",
-                      table: "w-full",
-                      head_cell: "text-muted-foreground font-normal text-sm w-[60px]",
-                      cell: "text-center p-0",
-                      day: "h-[60px] w-[60px] font-normal text-lg",
-                      day_selected: "bg-blue-600 text-white hover:bg-blue-700",
-                      day_today: "bg-blue-100 text-blue-900",
-                      day_disabled: "text-muted-foreground opacity-50",
-                      nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
-                      nav_button_previous: "absolute left-1",
-                      nav_button_next: "absolute right-1",
-                      caption: "flex justify-center pt-1 relative items-center text-lg font-semibold",
-                    }}
-                    components={{
-                      DayContent: ({ date }) => {
-                        const dateStr = date.toISOString().split('T')[0];
-                        const count = appointmentCounts[dateStr] || 0;
-                        return (
-                          <div className="relative w-full h-full flex flex-col items-center justify-center">
-                            <span>{date.getDate()}</span>
-                            {count > 0 && (
-                              <div className="appointment-indicator">
-                                {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
-                                  <div
-                                    key={i}
-                                    className="appointment-dot"
-                                    style={{
-                                      backgroundColor: count === 1 ? '#60a5fa' : count === 2 ? '#3b82f6' : '#1d4ed8',
-                                    }}
-                                  />
-                                ))}
-                                {count > 3 && <span className="text-xs text-blue-600 ml-1">+{count - 3}</span>}
-                              </div>
-                            )}
-                            {count > 0 && (
-                              <div className="absolute top-1 right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                                {count}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      },
-                    }}
-                  />
+                            });
+                        }
+                      }}
+                      className="w-full"
+                      classNames={{
+                        months: "w-full",
+                        month: "w-full",
+                        table: "w-full border-collapse",
+                        head_row: "flex w-full",
+                        head_cell: "flex-1 text-center",
+                        row: "flex w-full mt-1",
+                        cell: "flex-1 text-center p-0",
+                        day: "w-full h-full",
+                        nav_button_previous: "absolute left-2",
+                        nav_button_next: "absolute right-2",
+                        caption: "flex justify-center pt-1 relative items-center text-xl font-bold text-gray-800 mb-4",
+                      }}
+                      components={{
+                        DayContent: ({ date }) => {
+                          const dateStr = date.toISOString().split('T')[0];
+                          const count = appointmentCounts[dateStr] || 0;
+                          return (
+                            <div className="day-content">
+                              <span className="relative z-10">{date.getDate()}</span>
+                              {count > 0 && (
+                                <>
+                                  <div className="appointment-badge" data-testid={`badge-appointment-${dateStr}`}>
+                                    {count}
+                                  </div>
+                                  <div className="appointment-dots">
+                                    {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
+                                      <div key={i} className="appointment-dot" />
+                                    ))}
+                                    {count > 3 && (
+                                      <span className="text-xs font-bold text-blue-600 ml-1">
+                                        +{count - 3}
+                                      </span>
+                                    )}
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          );
+                        },
+                      }}
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
