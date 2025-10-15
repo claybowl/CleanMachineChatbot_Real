@@ -155,10 +155,11 @@ Preferred communication style: Simple, everyday language.
   - Appointment updates
 
 **Weather & Location**:
-- **OpenWeather API**: Weather forecasting for appointment planning
+- **Open-Meteo API**: Free weather forecasting for appointment planning (no API key required)
   - Rain probability checking
   - Reschedule recommendations based on weather risk
   - Hourly forecasts for outdoor service planning
+  - WMO weather codes for accurate precipitation detection
 
 **AI & ML**:
 - **OpenAI API**: GPT-4o for chatbot intelligence
