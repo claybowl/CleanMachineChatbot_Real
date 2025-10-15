@@ -60,12 +60,13 @@ const GalleryPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-950 via-black to-blue-950 text-white">
       <div className="container mx-auto px-4 py-12">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div>
             <Button 
               variant="ghost" 
               className="text-blue-300 hover:text-blue-100 hover:bg-blue-800/30 mb-2"
               asChild
+              data-testid="button-back-home"
             >
               <Link href="/">
                 <ChevronLeft className="mr-1 h-4 w-4" />
@@ -78,6 +79,25 @@ const GalleryPage: React.FC = () => {
             <p className="text-blue-300">
               See the difference our premium detailing services make on real client vehicles
             </p>
+          </div>
+          
+          <div className="flex flex-col gap-2 md:mt-8">
+            <Button 
+              variant="outline" 
+              className="border-blue-500 text-blue-300 hover:bg-blue-950/50"
+              asChild
+              data-testid="button-view-google-photos"
+            >
+              <a 
+                href="https://g.page/r/CQo53O2yXrN8EAE" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                <ImageIcon className="h-4 w-4 mr-2" />
+                View More on Google
+                <ExternalLink className="h-3 w-3 ml-2" />
+              </a>
+            </Button>
           </div>
         </div>
 

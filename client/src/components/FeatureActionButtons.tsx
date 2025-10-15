@@ -1,49 +1,16 @@
-import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import { 
   Image,
   GiftIcon, 
   Star,
-  Award,
-  ExternalLink
+  Award
 } from 'lucide-react';
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 
 export default function FeatureActionButtons() {
-  const { toast } = useToast();
-
-  const handleGalleryClick = () => {
-    window.open('/gallery', '_blank');
-    toast({
-      title: "Gallery",
-      description: "Viewing our work gallery...",
-    });
-  };
-  
   const handleGiftCardsClick = () => {
     window.open('https://squareup.com/gift/EDQKXPXWCXQWM/order', '_blank');
-    toast({
-      title: "Gift Cards",
-      description: "Exploring our gift card options...",
-    });
-  };
-  
-  const handleReviewsClick = () => {
-    window.open('https://g.page/r/CQo53O2yXrN8EBM/review', '_blank');
-    toast({
-      title: "Reviews",
-      description: "Thank you for considering leaving a review!",
-    });
-  };
-  
-  const handleRewardsClick = () => {
-    window.location.href = '/rewards';
-    toast({
-      title: "Loyalty Program",
-      description: "Checking your loyalty points...",
-    });
   };
 
   return (
@@ -56,17 +23,21 @@ export default function FeatureActionButtons() {
       <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto">
         <Button
           variant="ghost"
-          onClick={handleGalleryClick}
+          asChild
           className="py-2 px-3 bg-blue-600/10 hover:bg-blue-600/30 text-white border-none rounded-md shadow-sm transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:shadow-blue-800/20"
+          data-testid="button-gallery"
         >
-          <Image className="h-4 w-4 mr-1 group-hover:animate-pulse" />
-          Gallery
+          <Link href="/gallery">
+            <Image className="h-4 w-4 mr-1 group-hover:animate-pulse" />
+            Gallery
+          </Link>
         </Button>
 
         <Button
           variant="ghost"
           onClick={handleGiftCardsClick}
           className="py-2 px-3 bg-blue-600/10 hover:bg-blue-600/30 text-white border-none rounded-md shadow-sm transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:shadow-blue-800/20"
+          data-testid="button-gift-cards"
         >
           <GiftIcon className="h-4 w-4 mr-1 group-hover:animate-pulse" />
           Gift Cards
@@ -74,20 +45,26 @@ export default function FeatureActionButtons() {
 
         <Button
           variant="ghost"
-          onClick={handleReviewsClick}
+          asChild
           className="py-2 px-3 bg-blue-600/10 hover:bg-blue-600/30 text-white border-none rounded-md shadow-sm transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:shadow-blue-800/20"
+          data-testid="button-reviews"
         >
-          <Star className="h-4 w-4 mr-1 group-hover:animate-pulse" />
-          Reviews
+          <Link href="/reviews">
+            <Star className="h-4 w-4 mr-1 group-hover:animate-pulse" />
+            Reviews
+          </Link>
         </Button>
         
         <Button
           variant="ghost"
-          onClick={handleRewardsClick}
+          asChild
           className="py-2 px-3 bg-blue-600/10 hover:bg-blue-600/30 text-white border-none rounded-md shadow-sm transition-all duration-300 transform hover:scale-105 hover:shadow-md hover:shadow-blue-800/20"
+          data-testid="button-rewards"
         >
-          <Award className="h-4 w-4 mr-1 group-hover:animate-pulse" />
-          My Loyalty Points
+          <Link href="/rewards">
+            <Award className="h-4 w-4 mr-1 group-hover:animate-pulse" />
+            My Loyalty Points
+          </Link>
         </Button>
       </div>
     </motion.div>

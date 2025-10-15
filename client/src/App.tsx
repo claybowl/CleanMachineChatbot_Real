@@ -20,6 +20,7 @@ import LoyaltyPointsPage from "@/pages/rewards";
 import DashboardNavButton from "@/components/DashboardNavButton";
 import { QuickActionButton } from "@/components/QuickActionButton";
 import GalleryPage from './pages/gallery';
+import ReviewsPage from './pages/reviews';
 
 function Router() {
   return (
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/demo" component={DemoPage} />
       <Route path="/rewards" component={LoyaltyPointsPage} />
       <Route path="/gallery" component={GalleryPage} />
+      <Route path="/reviews" component={ReviewsPage} />
       {/* Home route must come after other routes */}
       <Route path="/" component={HomePage} />
       {/* Fallback to 404 */}
