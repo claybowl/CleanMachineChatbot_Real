@@ -275,6 +275,7 @@ export async function registerRoutes(app: Express) {
   app.get('/api/get-available', handleGetAvailable);
   app.get('/api/available-slots', handleGetAvailable); // Add alias for frontend compatibility
   app.post('/api/book', handleBook);
+  app.post('/api/book-appointment', handleBook); // Add the correct route name that frontend uses
   
   // Dashboard API routes
   app.get('/api/dashboard/upcoming', getUpcomingAppointments);
