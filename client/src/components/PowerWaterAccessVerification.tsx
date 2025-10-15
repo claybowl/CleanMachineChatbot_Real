@@ -73,29 +73,31 @@ export default function PowerWaterAccessVerification({
   };
 
   return (
-    <Card className="w-full border-none shadow-none">
-      <CardHeader className="px-0">
-        <CardTitle className="text-xl font-bold">Service Requirements</CardTitle>
-        <CardDescription>
+    <div className="w-full space-y-6">
+      <div className="text-center pb-4 border-b border-blue-400/10">
+        <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200">
+          Service Requirements
+        </h3>
+        <p className="text-sm text-blue-200/60 mt-2">
           Let's verify we can provide service at your location
-        </CardDescription>
-      </CardHeader>
+        </p>
+      </div>
 
-      <CardContent className="px-0 space-y-6">
+      <div className="space-y-6">
         {/* Exterior Service Question */}
         <div className="space-y-3">
-          <Label className="text-base">Do you need exterior detailing service?</Label>
+          <Label className="text-base text-blue-100">Do you need exterior detailing service?</Label>
           <RadioGroup 
             onValueChange={(value) => setNeedsExteriorService(value === "yes")}
             className="flex flex-col space-y-2"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="yes" id="exterior-yes" />
-              <Label htmlFor="exterior-yes" className="font-normal">Yes, I need exterior cleaning</Label>
+              <RadioGroupItem value="yes" id="exterior-yes" className="border-blue-400/40" />
+              <Label htmlFor="exterior-yes" className="font-normal text-blue-100">Yes, I need exterior cleaning</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="no" id="exterior-no" />
-              <Label htmlFor="exterior-no" className="font-normal">No, interior service only</Label>
+              <RadioGroupItem value="no" id="exterior-no" className="border-blue-400/40" />
+              <Label htmlFor="exterior-no" className="font-normal text-blue-100">No, interior service only</Label>
             </div>
           </RadioGroup>
         </div>
@@ -103,25 +105,25 @@ export default function PowerWaterAccessVerification({
         {/* Power Access Question */}
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
-            <Label className="text-base">Is there a power outlet available?</Label>
-            <div className="text-blue-500">
+            <Label className="text-base text-blue-100">Is there a power outlet available?</Label>
+            <div className="text-blue-400">
               <Zap size={16} />
             </div>
           </div>
-          <CardDescription className="text-sm text-muted-foreground mb-2">
+          <p className="text-sm text-blue-200/60 mb-2">
             We need a standard 110v outlet within 100ft of your vehicle.
-          </CardDescription>
+          </p>
           <RadioGroup 
             onValueChange={(value) => setHasPowerAccess(value === "yes")}
             className="flex flex-col space-y-2"
           >
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="yes" id="power-yes" />
-              <Label htmlFor="power-yes" className="font-normal">Yes, power is available</Label>
+              <RadioGroupItem value="yes" id="power-yes" className="border-blue-400/40" />
+              <Label htmlFor="power-yes" className="font-normal text-blue-100">Yes, power is available</Label>
             </div>
             <div className="flex items-center space-x-2">
-              <RadioGroupItem value="no" id="power-no" />
-              <Label htmlFor="power-no" className="font-normal">No, I'm unsure about power</Label>
+              <RadioGroupItem value="no" id="power-no" className="border-blue-400/40" />
+              <Label htmlFor="power-no" className="font-normal text-blue-100">No, I'm unsure about power</Label>
             </div>
           </RadioGroup>
           
@@ -256,6 +258,7 @@ export default function PowerWaterAccessVerification({
           <Button
             variant="outline"
             onClick={onBack}
+            className="border-blue-400/40 text-blue-200 hover:bg-blue-500/20"
           >
             Back
           </Button>
@@ -266,11 +269,12 @@ export default function PowerWaterAccessVerification({
               hasPowerAccess === null || 
               (needsExteriorService && hasWaterAccess === null)
             }
+            className="bg-blue-600 hover:bg-blue-700"
           >
             Continue
           </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

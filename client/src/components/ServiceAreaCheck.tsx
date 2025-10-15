@@ -134,47 +134,49 @@ export default function ServiceAreaCheck({ onNext, onBack }: ServiceAreaCheckPro
 
   return (
     <>
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-500 text-white">
-          <CardTitle className="text-xl font-bold">Check Service Area</CardTitle>
-          <CardDescription className="text-white opacity-90">
+      <div className="space-y-4">
+        <div className="text-center pb-4 border-b border-blue-400/10">
+          <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-200 via-blue-400 to-blue-200">
+            Check Service Area
+          </h3>
+          <p className="text-sm text-blue-200/60 mt-2">
             Please enter your address to check if you're in our service area
-          </CardDescription>
-        </CardHeader>
+          </p>
+        </div>
         
-        <CardContent className="mt-4 w-full px-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="address">Your Address</Label>
-              <Input
-                id="address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter your full address"
-                className="w-full"
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="address" className="text-blue-100">Your Address</Label>
+            <Input
+              id="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Enter your full address"
+              className="w-full bg-gray-700/30 border-blue-400/30 text-blue-100 placeholder:text-blue-200/40"
+              required
+            />
+          </div>
+          
+          <div className="flex justify-between items-center pt-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onBack}
+              className="text-blue-200 hover:bg-blue-500/20"
+            >
+              Cancel
+            </Button>
             
-            <div className="flex justify-between items-center pt-4">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={onBack}
-              >
-                Cancel
-              </Button>
-              
-              <Button 
-                type="submit" 
-                disabled={isLoading || !address.trim()}
-              >
-                {isLoading ? "Checking..." : "Check Address"}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            <Button 
+              type="submit" 
+              disabled={isLoading || !address.trim()}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isLoading ? "Checking..." : "Check Address"}
+            </Button>
+          </div>
+        </form>
+      </div>
 
       {/* Out of service area dialog */}
       <AlertDialog open={showOutOfAreaDialog} onOpenChange={setShowOutOfAreaDialog}>
