@@ -553,6 +553,12 @@ export async function registerRoutes(app: Express) {
   registerUpsellRoutes(app);
   registerEnhancedCustomerRoutes(app);
   
+  // Customer update endpoint
+  app.post('/api/customers/update', async (req, res) => {
+    const { updateCustomer } = await import('./updateCustomer');
+    return updateCustomer(req, res);
+  });
+  
   // Customer info endpoint for service history page
   app.get('/api/customer-info', async (req: Request, res: Response) => {
     try {

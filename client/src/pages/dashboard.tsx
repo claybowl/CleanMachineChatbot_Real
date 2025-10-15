@@ -36,6 +36,7 @@ import { EmailCampaignsManager } from "../components/EmailCampaignsManager";
 import CleanMachineLogo from "../components/CleanMachineLogo";
 import CancellationDemo from "../components/CancellationDemo";
 import BusinessChatInterface from "../components/BusinessChatInterface";
+import { CustomerManagement } from "../components/CustomerManagement";
 import { 
   Car, 
   CalendarClock, 
@@ -498,6 +499,7 @@ export default function Dashboard() {
                 {activeTab === 'upsell' && 'Upsell Management'}
                 {activeTab === 'loyalty' && 'Loyalty Program'}
                 {activeTab === 'cancellation' && 'Cancellation Feedback'}
+                {activeTab === 'customers' && 'Customer Management'}
               </span>
             </div>
             <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -571,6 +573,11 @@ export default function Dashboard() {
                 setLocation('/live-conversations');
                 document.getElementById('tab-dropdown')?.classList.add('hidden');
               }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100">Live Chat</button>
+              
+              <button onClick={() => {
+                setActiveTab('customers');
+                document.getElementById('tab-dropdown')?.classList.add('hidden');
+              }} className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-100">Customer Management</button>
             </div>
           </div>
         </div>
@@ -649,6 +656,12 @@ export default function Dashboard() {
               onClick={() => setActiveTab('agent')}
             >
               Agent Settings
+            </button>
+            <button 
+              className={`px-4 py-2 rounded-md ${activeTab === 'customers' ? 'bg-blue-600 text-white' : 'bg-blue-100 text-blue-800'}`}
+              onClick={() => setActiveTab('customers')}
+            >
+              Customer Management
             </button>
           </div>
         </div>
@@ -1617,6 +1630,11 @@ export default function Dashboard() {
               <CancellationDemo />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Customer Management Tab */}
+        <TabsContent value="customers" className="space-y-4">
+          <CustomerManagement />
         </TabsContent>
       </Tabs>
       
