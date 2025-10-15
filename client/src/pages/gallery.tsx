@@ -29,8 +29,8 @@ const GalleryPage: React.FC = () => {
       try {
         setLoading(true);
         
-        // Using the same endpoint that gets reviews
-        const response = await fetch('/api/google-photos');
+        // Fetch photos from Google Business Profile
+        const response = await fetch('/api/google-business-photos');
         
         if (!response.ok) {
           throw new Error('Failed to fetch photos');

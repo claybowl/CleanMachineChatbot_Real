@@ -26,7 +26,8 @@ import {
   updateService
 } from './dashboardApi';
 import {
-  getGoogleReviews
+  getGoogleReviews,
+  getGoogleBusinessPhotos
 } from './googleIntegration';
 import {
   getWeatherForecast
@@ -346,6 +347,22 @@ export async function registerRoutes(app: Express) {
         success: false, 
         message: 'Failed to search for place',
         error: error.message
+      });
+    }
+  });
+
+  // Google Business Photos API
+  app.get('/api/google-business-photos', async (req, res) => {
+    try {
+      const placeId = req.query.placeId as string | undefined;
+      const photos = await getGoogleBusinessPhotos(placeId);
+      res.json({ success: true, photos });
+    } catch (error) {
+      console.error('Error fetching Google Business photos:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to fetch Google Business photos',
+        error: error instanceof Error ? error.message : String(error)
       });
     }
   });

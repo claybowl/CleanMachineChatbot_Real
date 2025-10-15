@@ -144,7 +144,7 @@ export default function HomePage() {
             </p>
           </motion.div>
           <div className="px-4">
-            <GoogleReviews placeId="ChIJN1t_tDeuEmsRUsoyG83frY4" />
+            <GoogleReviews placeId="ChIJVX4B3d2TtocRCjnc7bJevHw" />
           </div>
         </motion.section>
         

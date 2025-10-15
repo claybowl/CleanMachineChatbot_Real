@@ -12,6 +12,7 @@ const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '873147414857-7ffaa2b8l
 const GOOGLE_DRIVE_FOLDER_ID = process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID || '1jYUTEaN7Nup_ShvU3plj7RKaedppxuyx'; // ID of "Client Photos" folder
 const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || '1-xeX82TPoxxeyWXoCEXh-TdMkBHuJSXjoUSaiFjfv9g'; // Your knowledge base spreadsheet ID
 const CALENDAR_ID = process.env.GOOGLE_CALENDAR_ID || 'cleanmachinetulsa@gmail.com';
+const GOOGLE_PLACE_ID = process.env.GOOGLE_PLACE_ID || 'ChIJVX4B3d2TtocRCjnc7bJevHw'; // Clean Machine Mobile Auto Detail Place ID
 
 // Log API key status for debugging
 console.log('Google API key available:', !!GOOGLE_API_KEY);
@@ -36,14 +37,73 @@ let authClient: any = null;  // Store the auth client for other services to use
 // Function to get access to the drive client for testing
 
 /**
- * Get photos from Google Drive gallery folder
+ * Get photos from Google Business Profile using Places API
+ * Fetches real-time photos from your Google Business listing
+ */
+export async function getGoogleBusinessPhotos(placeId?: string) {
+  try {
+    const placeIdToUse = placeId || GOOGLE_PLACE_ID;
+    
+    if (!GOOGLE_API_KEY) {
+      console.error('Google API key not configured for photos');
+      return [];
+    }
+
+    if (!placeIdToUse) {
+      console.warn('Google Place ID not provided for photos');
+      return [];
+    }
+
+    // Use Google Places API to fetch place details including photos
+    const url = `https://places.googleapis.com/v1/places/${placeIdToUse}`;
+    
+    console.log('Fetching business photos from Google Places API');
+    
+    const response = await axios.get(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': GOOGLE_API_KEY,
+        'X-Goog-FieldMask': 'photos,displayName'
+      }
+    });
+
+    if (response.status !== 200) {
+      throw new Error(`Google Places API error: ${response.statusText}`);
+    }
+
+    const data = response.data;
+    
+    // Transform Google Places photos to match expected format
+    const photos = (data.photos || []).map((photo: any, index: number) => ({
+      id: `google_photo_${index}`,
+      name: photo.authorAttributions?.[0]?.displayName || `Photo ${index + 1}`,
+      photoUrl: `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_API_KEY}&maxWidthPx=1200`,
+      thumbnailUrl: `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_API_KEY}&maxWidthPx=400`,
+      highResUrl: `https://places.googleapis.com/v1/${photo.name}/media?key=${GOOGLE_API_KEY}&maxWidthPx=2400`,
+      width: photo.widthPx || 800,
+      height: photo.heightPx || 600
+    }));
+
+    console.log(`Found ${photos.length} photos from Google Business Profile`);
+    
+    return photos;
+  } catch (error: any) {
+    console.error('Error fetching Google Business photos:', error.message);
+    // Fall back to Drive photos if API fails
+    return getGooglePlacePhotos();
+  }
+}
+
+/**
+ * Get photos from Google Drive gallery folder (fallback)
  */
 export async function getGooglePlacePhotos() {
   try {
     await initializeGoogleApis();
     
     if (!drive) {
-      throw new Error('Google Drive not initialized');
+      console.warn('Google Drive not initialized, returning empty photos');
+      return [];
     }
 
     // Your gallery folder ID from the Drive link
@@ -95,7 +155,7 @@ export async function getGooglePlacePhotos() {
     
   } catch (error) {
     console.error('Error fetching Google Drive gallery photos:', error);
-    throw new Error('Failed to fetch photos from Google Drive gallery');
+    return [];
   }
 }
 
@@ -105,22 +165,22 @@ export async function getGooglePlacePhotos() {
  */
 export async function getGoogleReviews(placeId?: string) {
   try {
-    // Use environment variable or parameter for Place ID
-    const GOOGLE_PLACE_ID = placeId || process.env.GOOGLE_PLACE_ID;
+    // Use parameter, environment variable, or default Place ID
+    const placeIdToUse = placeId || GOOGLE_PLACE_ID;
     
     if (!GOOGLE_API_KEY) {
       console.error('Google API key not configured');
       throw new Error('Google API key is required to fetch reviews');
     }
 
-    if (!GOOGLE_PLACE_ID) {
-      console.warn('Google Place ID not provided - please configure GOOGLE_PLACE_ID environment variable');
+    if (!placeIdToUse) {
+      console.warn('Google Place ID not provided');
       // Return empty array if Place ID not configured
       return [];
     }
 
     // Use Google Places API (New) to fetch place details including reviews
-    const url = `https://places.googleapis.com/v1/places/${GOOGLE_PLACE_ID}`;
+    const url = `https://places.googleapis.com/v1/places/${placeIdToUse}`;
     
     console.log('Fetching real-time reviews from Google Places API');
     
