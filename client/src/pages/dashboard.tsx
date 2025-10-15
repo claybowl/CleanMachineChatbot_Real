@@ -668,40 +668,192 @@ export default function Dashboard() {
         
         {/* Today's Appointments Tab */}
         <TabsContent value="today" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 space-y-4">
-              {/* Appointment Statistics Card */}
-              <Card className="bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-lg">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-xl">Monthly Overview</CardTitle>
-                  <CardDescription className="text-blue-100">
-                    {format(todayDate, 'MMMM yyyy')} Appointment Insights
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3" data-testid="stat-total-appointments">
-                      <div className="text-2xl font-bold">
-                        {Object.values(appointmentCounts).reduce((sum, count) => sum + count, 0)}
-                      </div>
-                      <div className="text-sm text-blue-100">Total Appointments</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3" data-testid="stat-busy-days">
-                      <div className="text-2xl font-bold">
-                        {Object.keys(appointmentCounts).length}
-                      </div>
-                      <div className="text-sm text-blue-100">Busy Days</div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3" data-testid="stat-peak-bookings">
-                      <div className="text-2xl font-bold">
-                        {Math.max(...Object.values(appointmentCounts), 0)}
-                      </div>
-                      <div className="text-sm text-blue-100">Peak Daily Bookings</div>
-                    </div>
+          {/* Monthly Statistics Bar */}
+          <Card className="bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-xl">
+            <CardContent className="py-4">
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                <div className="text-center">
+                  <div className="text-3xl font-bold">{Object.values(appointmentCounts).reduce((sum, count) => sum + count, 0)}</div>
+                  <div className="text-xs text-blue-100">Total This Month</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold">{Object.keys(appointmentCounts).length}</div>
+                  <div className="text-xs text-blue-100">Busy Days</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold">{Math.max(...Object.values(appointmentCounts), 0)}</div>
+                  <div className="text-xs text-blue-100">Peak Daily</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold">{filteredAppointments.length}</div>
+                  <div className="text-xs text-blue-100">Today</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold">
+                    ${filteredAppointments.reduce((sum, apt) => {
+                      const price = apt.price ? parseInt(apt.price.replace(/\D/g, '')) || 150 : 150;
+                      return sum + price;
+                    }, 0).toLocaleString()}
                   </div>
+                  <div className="text-xs text-blue-100">Today's Revenue</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold">
+                    {filteredAppointments.length > 0 
+                      ? (() => {
+                          const serviceCounts = filteredAppointments.reduce((acc: any, apt) => {
+                            acc[apt.service] = (acc[apt.service] || 0) + 1;
+                            return acc;
+                          }, {});
+                          const mostPopular = Object.entries(serviceCounts).sort((a: any, b: any) => b[1] - a[1])[0];
+                          return mostPopular ? (mostPopular[1] as number) : 0;
+                        })()
+                      : 0
+                    }
+                  </div>
+                  <div className="text-xs text-blue-100">Top Service Count</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Large Central Calendar */}
+            <div className="lg:col-span-2 space-y-4">
+              <Card className="bg-white/95 shadow-2xl border-blue-200">
+                <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+                  <CardTitle className="flex items-center justify-between text-2xl">
+                    <div className="flex items-center">
+                      <CalendarClock className="mr-3 h-8 w-8" />
+                      {format(todayDate, 'MMMM yyyy')} Calendar
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="bg-white/20 hover:bg-white/30 text-white border-white/20"
+                        onClick={() => setTodayDate(new Date())}
+                      >
+                        Today
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="bg-white/20 hover:bg-white/30 text-white border-white/20"
+                        onClick={async () => {
+                          toast({
+                            title: "Checking Weather",
+                            description: "Analyzing weather conditions for upcoming appointments...",
+                          });
+                        }}
+                      >
+                        <CloudRain className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <style>
+                    {`
+                      .rdp-day {
+                        width: 60px !important;
+                        height: 60px !important;
+                        font-size: 16px !important;
+                        position: relative;
+                      }
+                      .rdp-button {
+                        width: 100% !important;
+                        height: 100% !important;
+                      }
+                      .appointment-indicator {
+                        position: absolute;
+                        bottom: 4px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        display: flex;
+                        gap: 2px;
+                      }
+                      .appointment-dot {
+                        width: 6px;
+                        height: 6px;
+                        border-radius: 50%;
+                        background: #3b82f6;
+                      }
+                    `}
+                  </style>
+                  <Calendar
+                    mode="single"
+                    selected={todayDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setTodayDate(date);
+                        const formattedDate = date.toISOString();
+                        fetch(`/api/dashboard/today?date=${formattedDate}`)
+                          .then(response => response.json())
+                          .then(data => {
+                            if (data.success && data.appointments) {
+                              setAppointments(data.appointments);
+                            } else {
+                              setAppointments([]);
+                            }
+                          })
+                          .catch(error => {
+                            console.error('Error fetching appointments:', error);
+                            setAppointments([]);
+                          });
+                      }
+                    }}
+                    className="w-full"
+                    classNames={{
+                      months: "w-full",
+                      month: "w-full",
+                      table: "w-full",
+                      head_cell: "text-muted-foreground font-normal text-sm w-[60px]",
+                      cell: "text-center p-0",
+                      day: "h-[60px] w-[60px] font-normal text-lg",
+                      day_selected: "bg-blue-600 text-white hover:bg-blue-700",
+                      day_today: "bg-blue-100 text-blue-900",
+                      day_disabled: "text-muted-foreground opacity-50",
+                      nav_button: "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+                      nav_button_previous: "absolute left-1",
+                      nav_button_next: "absolute right-1",
+                      caption: "flex justify-center pt-1 relative items-center text-lg font-semibold",
+                    }}
+                    components={{
+                      DayContent: ({ date }) => {
+                        const dateStr = date.toISOString().split('T')[0];
+                        const count = appointmentCounts[dateStr] || 0;
+                        return (
+                          <div className="relative w-full h-full flex flex-col items-center justify-center">
+                            <span>{date.getDate()}</span>
+                            {count > 0 && (
+                              <div className="appointment-indicator">
+                                {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className="appointment-dot"
+                                    style={{
+                                      backgroundColor: count === 1 ? '#60a5fa' : count === 2 ? '#3b82f6' : '#1d4ed8',
+                                    }}
+                                  />
+                                ))}
+                                {count > 3 && <span className="text-xs text-blue-600 ml-1">+{count - 3}</span>}
+                              </div>
+                            )}
+                            {count > 0 && (
+                              <div className="absolute top-1 right-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                                {count}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      },
+                    }}
+                  />
                 </CardContent>
               </Card>
 
+              {/* Selected Day Appointments */}
               <Card className="bg-blue-50/95 text-gray-800 shadow-lg">
                 <CardHeader>
                   <CardTitle className="flex items-center text-blue-800">
@@ -809,135 +961,10 @@ export default function Dashboard() {
               </Card>
             </div>
             
-            <div>
-              <Card className="mb-6">
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-center">
-                    <span>Calendar</span>
-                    <div className="flex space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => {
-                          const testing = async () => {
-                            try {
-                              const response = await fetch('/api/test-calendar');
-                              const data = await response.json();
-                              
-                              if (data.success) {
-                                console.log('Calendar integration working!', data);
-                                toast({
-                                  title: "Success",
-                                  description: `Connected to Google Calendar! Found ${data.eventCount} upcoming events.`,
-                                });
-                              } else {
-                                console.error('Calendar test failed:', data.error);
-                                toast({
-                                  title: "Error",
-                                  description: `Calendar integration issue: ${data.error}`,
-                                  variant: "destructive"
-                                });
-                              }
-                            } catch (error) {
-                              console.error('Error testing calendar:', error);
-                              toast({
-                                title: "Error",
-                                description: "Failed to test calendar integration. See console for details.",
-                                variant: "destructive"
-                              });
-                            }
-                          };
-                          
-                          testing();
-                        }}
-                      >
-                        Test Calendar
-                      </Button>
-                      
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="flex items-center"
-                        onClick={async () => {
-                          // Selected appointment's address coordinates
-                          // In a real implementation, we'd geocode the address
-                          let latitude = 36.1236407; // Default Tulsa coordinates
-                          let longitude = -95.9359214;
-                          
-                          // Get selected appointment if any
-                          const selectedAppointment = filteredAppointments.length > 0 ? filteredAppointments[0] : null;
-                          
-                          if (selectedAppointment && selectedAppointment.address) {
-                            try {
-                              // Here we would geocode the address, but for now we'll use default
-                              toast({
-                                title: "Weather Check",
-                                description: `Checking weather for upcoming appointments`,
-                              });
-                            } catch (err) {
-                              console.error('Error getting coordinates:', err);
-                            }
-                          }
-                        }}
-                      >
-                        <CloudRain className="h-4 w-4 mr-2" />
-                        Weather Check
-                      </Button>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Calendar
-                    mode="single"
-                    selected={todayDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        setTodayDate(date);
-                        // Fetch appointments for the selected date
-                        const formattedDate = date.toISOString();
-                        fetch(`/api/dashboard/today?date=${formattedDate}`)
-                          .then(response => response.json())
-                          .then(data => {
-                            if (data.success && data.appointments) {
-                              setAppointments(data.appointments);
-                            } else {
-                              setAppointments([]);
-                            }
-                          })
-                          .catch(error => {
-                            console.error('Error fetching appointments:', error);
-                            setAppointments([]);
-                          });
-                      }
-                    }}
-                    className="rounded-md border"
-                    modifiersClassNames={{
-                      selected: "bg-primary text-primary-foreground",
-                      today: "bg-accent text-accent-foreground",
-                      busy1: "bg-blue-200 text-blue-800 font-bold", // Light blue for 1 appointment
-                      busy2: "bg-blue-400 text-blue-900 font-bold", // Medium blue for 2 appointments
-                      busy3: "bg-blue-600 text-white font-bold",    // Dark blue for 3+ appointments
-                    }}
-                    modifiers={{
-                      busy1: (date) => {
-                        const dateStr = date.toISOString().split('T')[0];
-                        return appointmentCounts[dateStr] === 1;
-                      },
-                      busy2: (date) => {
-                        const dateStr = date.toISOString().split('T')[0];
-                        return appointmentCounts[dateStr] === 2;
-                      },
-                      busy3: (date) => {
-                        const dateStr = date.toISOString().split('T')[0];
-                        return appointmentCounts[dateStr] >= 3;
-                      }
-                    }}
-                  />
-                </CardContent>
-              </Card>
-              
+            {/* Right Side Panel - Quick Actions and Insights */}
+            <div className="space-y-4">
               {/* Daily Insights Card */}
-              <Card className="mt-4 bg-gradient-to-br from-purple-50 to-blue-50 text-gray-800 shadow-lg border-purple-200">
+              <Card className="bg-gradient-to-br from-purple-50 to-blue-50 text-gray-800 shadow-lg border-purple-200">
                 <CardHeader>
                   <CardTitle className="text-purple-800 flex items-center">
                     <Star className="mr-2 h-5 w-5 text-purple-600" />
@@ -948,7 +975,7 @@ export default function Dashboard() {
                   {filteredAppointments.length > 0 ? (
                     <>
                       <div className="flex items-center justify-between p-2 bg-white rounded-lg">
-                        <span className="text-sm text-gray-600">Appointments Today:</span>
+                        <span className="text-sm text-gray-600">Appointments:</span>
                         <Badge className="bg-purple-600">{filteredAppointments.length}</Badge>
                       </div>
                       <div className="flex items-center justify-between p-2 bg-white rounded-lg">
@@ -965,7 +992,7 @@ export default function Dashboard() {
                         </Badge>
                       </div>
                       <div className="flex items-center justify-between p-2 bg-white rounded-lg">
-                        <span className="text-sm text-gray-600">Estimated Revenue:</span>
+                        <span className="text-sm text-gray-600">Revenue:</span>
                         <span className="text-lg font-bold text-green-600">
                           ${(() => {
                             const total = filteredAppointments.reduce((sum, apt) => {
